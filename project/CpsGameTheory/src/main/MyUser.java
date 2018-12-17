@@ -30,6 +30,7 @@ import DataModule.UserConsumptionSeq;
 import DataModule.UserConsumptionTypeSupport;
 import UserModule.UserStructDataWriter;
 import UserModule.UserStructTypeSupport;
+import handlers.DatabaseHandler;
 
 // ===========================================================================
 
@@ -73,6 +74,8 @@ public class MyUser {
 
     // -----------------------------------------------------------------------
 
+    protected static DatabaseHandler dbHandler = new DatabaseHandler();
+    
     private static void subscriberMain(int domainId, int sampleCount) {
 
         DomainParticipant participant = null;
@@ -89,8 +92,6 @@ public class MyUser {
         UserConsumptionDataWriter consumptionTopicWriter = null;
         UserStructDataWriter userRegisterTopicWriter = null;
         UserConsumptionDataReader offerTopicReader = null;
-        
-        //DatabaseHandler dbHandler = new DatabaseHandler(); TODO for data storage
 
         try {
 
@@ -315,7 +316,17 @@ public class MyUser {
 
         CentralDataSeq _dataSeq = new CentralDataSeq();
         SampleInfoSeq _infoSeq = new SampleInfoSeq();
-    	 
+
+        public static double lastMeanPrice = 0;
+        
+        public double meanPrice(double[] prices) {
+        	double sum = 0;
+        	for (double price : prices) {
+        		sum += price;
+        	}
+        	return sum / prices.length;
+        }
+        
         public void on_data_available(DataReader reader) {
 
             CentralDataDataReader priceReader = (CentralDataDataReader)reader;
@@ -333,8 +344,12 @@ public class MyUser {
 
                     if (info.valid_data) {
                         System.out.println(
-                            ((CentralData)_dataSeq.get(i)).toString("Received",0));
+                            ((CentralData)_dataSeq.get(i)).toString("Received price",0));
                         
+                        double actualMeanPrice = meanPrice(((CentralData)_dataSeq.get(i)).prices);
+                        dbHandler.addData("act_price", actualMeanPrice);
+                        dbHandler.addData("der_price", actualMeanPrice-lastMeanPrice);
+                        lastMeanPrice = actualMeanPrice;
                     }
                 }
             } catch (RETCODE_NO_DATA noData) {
