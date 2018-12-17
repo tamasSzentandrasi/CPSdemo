@@ -316,7 +316,9 @@ public class MyUser {
 
         CentralDataSeq _dataSeq = new CentralDataSeq();
         SampleInfoSeq _infoSeq = new SampleInfoSeq();
-    	
+
+        public static double lastMeanPrice = 0;
+        
         public double meanPrice(double[] prices) {
         	double sum = 0;
         	for (double price : prices) {
@@ -344,8 +346,10 @@ public class MyUser {
                         System.out.println(
                             ((CentralData)_dataSeq.get(i)).toString("Received price",0));
                         
-                        dbHandler.addData("price", meanPrice(((CentralData)_dataSeq.get(i)).prices));
-                        
+                        double actualMeanPrice = meanPrice(((CentralData)_dataSeq.get(i)).prices);
+                        dbHandler.addData("act_price", actualMeanPrice);
+                        dbHandler.addData("der_price", actualMeanPrice-lastMeanPrice);
+                        lastMeanPrice = actualMeanPrice;
                     }
                 }
             } catch (RETCODE_NO_DATA noData) {
