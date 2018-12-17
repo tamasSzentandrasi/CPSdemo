@@ -69,6 +69,32 @@ public class MyController {
     // Private Methods
     // -----------------------------------------------------------------------
 
+    public static long registerUser(Long id) {
+    	//placeholder, might be useful.
+    	return 0;
+    }
+    
+    public static int updateUsers() {
+    	return 0;
+    }
+    
+    public static int addClient(Long id, double[] con_value, double[] prod_value) {
+    	return 0;
+    }
+    
+    public static HashMap<Long, Double> getOffer(Long id_who, double value, boolean direction) {
+    	return new HashMap<Long, Double>();
+    }
+    
+    public static int sendWarnings() {
+    	return 0;
+    }
+    
+    public static void monopolInflation() {
+    }
+    
+    private double systemInflation = 1.0;
+    private static Map<Long, HashMap<Long, Double[]>> providers = new HashMap<Long, HashMap<Long, Double[]>>();
     private static Map<Long, UserStruct> users = new HashMap<Long, UserStruct>();;
     private static Map<Long, UserConsumption> consumptions = new HashMap<Long, UserConsumption>();
     
@@ -324,9 +350,11 @@ private static class UserListener extends DataReaderAdapter {
                     SampleInfo info = (SampleInfo)_infoSeq.get(i);
 
                     if (info.valid_data) {
-                        System.out.println(
-                            ((UserStruct)_dataSeq.get(i)).toString("Received",0));
-                        
+                        //System.out.println(
+                         //   ((UserStruct)_dataSeq.get(i)).toString("Received",0));
+                    	UserStruct registeredUser = (UserStruct)_dataSeq.get(i);
+                    	long registeredID = registerUser(registeredUser.id);
+                        users.put(registeredID, registeredUser);
                     }
                 }
             } catch (RETCODE_NO_DATA noData) {
@@ -358,9 +386,12 @@ private static class ConsumptionListener extends DataReaderAdapter {
                 SampleInfo info = (SampleInfo)_infoSeq.get(i);
 
                 if (info.valid_data) {
-                    System.out.println(
-                        ((UserConsumption)_dataSeq.get(i)).toString("Received",0));
-                    
+                    //System.out.println(
+                    //    ((UserConsumption)_dataSeq.get(i)).toString("Received",0));
+                    UserConsumption newConsumption = (UserConsumption)_dataSeq.get(i);
+                    consumptions.put(newConsumption.userid, newConsumption);
+                    HashMap<Long, Double[]> startingOut = new HashMap<Long, Double[]>();
+                    providers.put(newConsumption.userid, startingOut);
                 }
             }
         } catch (RETCODE_NO_DATA noData) {
