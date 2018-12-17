@@ -2,8 +2,14 @@
 
 package main;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import com.rti.dds.domain.DomainParticipant;
 import com.rti.dds.domain.DomainParticipantFactory;
@@ -71,7 +77,33 @@ public class MyController {
     // Private Methods
     // -----------------------------------------------------------------------
 
-    public static CentralData globalDataAcquire() {
+    public static List<Double> globalDataAcquire() {
+    	URL url = MyController.class.getResource("../prices.csv");
+    	System.out.println(url.toString().replace("file:/", ""));
+    	File file= new File(url.toString().replace("file:/", ""));
+    	
+        // this gives you a 2-dimensional array of strings
+        List<Double> lines = new ArrayList<>();
+        Scanner inputStream;
+
+        try{
+            inputStream = new Scanner(file);
+            int i = 0;
+            while(inputStream.hasNextLine() && i++<10){
+                String line= inputStream.next();
+                System.out.println(line);
+                // this adds the currently parsed line to the 2-dimensional string array
+                lines.add(Double.valueOf(line));
+            }
+
+            inputStream.close();
+        }catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        
+        System.out.println(lines.size());
+        System.out.println(lines.get(0).toString());
+    	
     	return null;
     }
     public static long registerUser(Long id) {
