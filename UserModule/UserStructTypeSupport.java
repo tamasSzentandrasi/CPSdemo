@@ -151,6 +151,8 @@ public class UserStructTypeSupport extends TypeSupportImpl {
         } 
 
         currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
+        currentAlignment += CdrPrimitiveType.LONG.getMaxSizeSerialized(0) ;
+        currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
         currentAlignment +=UserModule.RoleTypeTypeSupport.get_instance().get_array_max_size_serialized(endpoint_data, 0,  (2));
         currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
         currentAlignment += CdrPrimitiveType.DOUBLE.getMaxSizeSerialized(0) ;
@@ -183,6 +185,8 @@ public class UserStructTypeSupport extends TypeSupportImpl {
             origAlignment = 0;
         } 
 
+        currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
+        currentAlignment +=CdrPrimitiveType.LONG.getMaxSizeSerialized(0) ;
         currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
         currentAlignment +=CdrPrimitiveType.DOUBLE.getMaxSizeSerialized(0) ;
         currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
@@ -223,6 +227,10 @@ public class UserStructTypeSupport extends TypeSupportImpl {
             epd.setBaseAlignment(currentAlignment);
         } 
 
+        currentAlignment += (CdrPrimitiveType.getPadSize(epd.getAlignment(currentAlignment), 4) + 12);
+        epd.setBaseAlignment(currentAlignment);
+
+        currentAlignment  +=  CdrPrimitiveType.LONG.getMaxSizeSerialized(epd.getAlignment(currentAlignment));
         if (typedSrc.role != null) {
             currentAlignment += (CdrPrimitiveType.getPadSize(epd.getAlignment(currentAlignment), 4) + 12);
             epd.setBaseAlignment(currentAlignment);
@@ -332,6 +340,11 @@ public class UserStructTypeSupport extends TypeSupportImpl {
         if(serialize_sample) {
 
             UserStruct typedSrc = (UserStruct) src;
+
+            memberId = 79104952;
+            memberLengthPosition = dst.writeMemberId((int)memberId);
+            dst.writeLong(typedSrc.id);
+            dst.writeMemberLength(memberLengthPosition, true);
 
             if (typedSrc.role != null) {
                 memberId = 82421545;
@@ -478,6 +491,9 @@ public class UserStructTypeSupport extends TypeSupportImpl {
                     case CdrEncapsulation.CDR_ENCAPSULATION_MEMBER_ID_LIST_END: 
                     end = true;
                     break;
+                    case 79104952:
+                    typedDst.id = src.readLong();
+                    break;
                     case 82421545:
                     if (typedDst.role == null) {
                         typedDst.role = 
@@ -614,6 +630,10 @@ public class UserStructTypeSupport extends TypeSupportImpl {
                     case CdrEncapsulation.CDR_ENCAPSULATION_MEMBER_ID_LIST_END: 
                     end = true;
                     break;
+                    case 79104952:
+                    src.skipLong();
+                    break;
+
                     case 82421545:
                     for(int i1__ = 0; i1__< 2; ++i1__){
 

@@ -19,6 +19,7 @@ import com.rti.dds.cdr.CdrHelper;
 public class CentralData   implements Copyable, Serializable{
 
     public double [] prices=  new double [7];
+    public int timestamp= 0;
 
     public CentralData() {
 
@@ -45,6 +46,7 @@ public class CentralData   implements Copyable, Serializable{
             prices[i1__] =  0;
         }
 
+        timestamp= 0;
     }
 
     public boolean equals(Object o) {
@@ -66,6 +68,10 @@ public class CentralData   implements Copyable, Serializable{
             }
         }
 
+        if(timestamp != otherObj.timestamp) {
+            return false;
+        }
+
         return true;
     }
 
@@ -76,6 +82,7 @@ public class CentralData   implements Copyable, Serializable{
             __result += (int)prices[i1__];
         }
 
+        __result += (int)timestamp;
         return __result;
     }
 
@@ -102,6 +109,8 @@ public class CentralData   implements Copyable, Serializable{
         typedDst.prices,0,
         typedSrc.prices.length); 
 
+        typedDst.timestamp = typedSrc.timestamp;
+
         return this;
     }
 
@@ -125,6 +134,8 @@ public class CentralData   implements Copyable, Serializable{
         }
 
         strBuffer.append("\n");
+        CdrHelper.printIndent(strBuffer, indent+1);        
+        strBuffer.append("timestamp: ").append(timestamp).append("\n");  
 
         return strBuffer.toString();
     }

@@ -151,6 +151,8 @@ public class UserConsumptionTypeSupport extends TypeSupportImpl {
         } 
 
         currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
+        currentAlignment += CdrPrimitiveType.LONG.getMaxSizeSerialized(0) ;
+        currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
         currentAlignment +=CdrPrimitiveType.DOUBLE.getArrayMaxSizeSerialized(0,  (7));
         currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
         currentAlignment +=CdrPrimitiveType.DOUBLE.getArrayMaxSizeSerialized(0,  (7));
@@ -179,6 +181,8 @@ public class UserConsumptionTypeSupport extends TypeSupportImpl {
             origAlignment = 0;
         } 
 
+        currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
+        currentAlignment +=CdrPrimitiveType.LONG.getMaxSizeSerialized(0) ;
         currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
         currentAlignment += CdrPrimitiveType.DOUBLE.getArrayMaxSizeSerialized(0,  (7));
         currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
@@ -217,6 +221,10 @@ public class UserConsumptionTypeSupport extends TypeSupportImpl {
             epd.setBaseAlignment(currentAlignment);
         } 
 
+        currentAlignment += (CdrPrimitiveType.getPadSize(epd.getAlignment(currentAlignment), 4) + 12);
+        epd.setBaseAlignment(currentAlignment);
+
+        currentAlignment  +=  CdrPrimitiveType.LONG.getMaxSizeSerialized(epd.getAlignment(currentAlignment));
         currentAlignment += (CdrPrimitiveType.getPadSize(epd.getAlignment(currentAlignment), 4) + 12);
         epd.setBaseAlignment(currentAlignment);
 
@@ -310,6 +318,11 @@ public class UserConsumptionTypeSupport extends TypeSupportImpl {
         if(serialize_sample) {
 
             UserConsumption typedSrc = (UserConsumption) src;
+
+            memberId = 206802922;
+            memberLengthPosition = dst.writeMemberId((int)memberId);
+            dst.writeLong(typedSrc.userid);
+            dst.writeMemberLength(memberLengthPosition, true);
 
             memberId = 171558363;
             memberLengthPosition = dst.writeMemberId((int)memberId);
@@ -448,6 +461,9 @@ public class UserConsumptionTypeSupport extends TypeSupportImpl {
                     case CdrEncapsulation.CDR_ENCAPSULATION_MEMBER_ID_LIST_END: 
                     end = true;
                     break;
+                    case 206802922:
+                    typedDst.userid = src.readLong();
+                    break;
                     case 171558363:
                     for(int i1__ = 0; i1__< 7; ++i1__){
 
@@ -571,6 +587,10 @@ public class UserConsumptionTypeSupport extends TypeSupportImpl {
                     case CdrEncapsulation.CDR_ENCAPSULATION_MEMBER_ID_LIST_END: 
                     end = true;
                     break;
+                    case 206802922:
+                    src.skipLong();
+                    break;
+
                     case 171558363:
                     for(int i1__ = 0; i1__< 7; ++i1__){
 

@@ -18,8 +18,9 @@ public class  UserStructTypeCode {
     private static TypeCode getTypeCode() {
         TypeCode tc = null;
         int __i=0;
-        StructMember sm[]=new StructMember[4];
+        StructMember sm[]=new StructMember[5];
 
+        sm[__i]=new  StructMember("id", false, (short)-1,  false,(TypeCode) TypeCode.TC_LONGLONG,79104952 , false);__i++;
         sm[__i]=new  StructMember("role", false, (short)-1,  false,(TypeCode) new TypeCode(new int[] {2}, UserModule.RoleTypeTypeCode.VALUE),82421545 ,true);__i++;
         sm[__i]=new  StructMember("distance", false, (short)-1,  false,(TypeCode) TypeCode.TC_DOUBLE,97078951 , false);__i++;
         sm[__i]=new  StructMember("transmissionType", false, (short)-1,  false,(TypeCode) UserModule.CableTypeTypeCode.VALUE,136653229 , false);__i++;

@@ -18,6 +18,7 @@ import com.rti.dds.cdr.CdrHelper;
 
 public class UserStruct   implements Copyable, Serializable{
 
+    public long id= 0;
     public UserModule.RoleType [] role= null;
     public double distance= 0;
     public UserModule.CableType transmissionType = (UserModule.CableType)UserModule.CableType.create();
@@ -43,6 +44,7 @@ public class UserStruct   implements Copyable, Serializable{
 
     public void clear() {
 
+        id= 0;
         role=null; 
         distance= 0;
         transmissionType = UserModule.CableType.create();
@@ -61,6 +63,9 @@ public class UserStruct   implements Copyable, Serializable{
 
         UserStruct otherObj = (UserStruct)o;
 
+        if(id != otherObj.id) {
+            return false;
+        }
         if ((role == null && otherObj.role != null) ||
         (role != null && otherObj.role == null)) {
             return false;
@@ -89,6 +94,7 @@ public class UserStruct   implements Copyable, Serializable{
 
     public int hashCode() {
         int __result = 0;
+        __result += (int)id;
         if (role != null) {
             for(int i1__ = 0; i1__< 2; ++i1__){
 
@@ -120,6 +126,8 @@ public class UserStruct   implements Copyable, Serializable{
 
         UserStruct typedSrc = (UserStruct) src;
         UserStruct typedDst = this;
+
+        typedDst.id = typedSrc.id;
 
         if (typedDst.role == null && typedSrc.role !=null){
             typedDst.role = 
@@ -159,6 +167,8 @@ public class UserStruct   implements Copyable, Serializable{
             strBuffer.append(desc).append(":\n");
         }
 
+        CdrHelper.printIndent(strBuffer, indent+1);        
+        strBuffer.append("id: ").append(id).append("\n");  
         if (role != null) {
             CdrHelper.printIndent(strBuffer, indent+1);
             strBuffer.append("role:\n");

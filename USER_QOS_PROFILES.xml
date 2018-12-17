@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- 
 Description
-XML QoS Profile for GameTheorySmartGrid
+XML QoS Profile for GameTheorySmartGrid2
 
 The QoS configuration of the DDS entities in the generated example is loaded 
 from this file.
@@ -76,25 +76,25 @@ RTI Connext user manual.
 
         A QoS library is a named set of QoS profiles.
     -->
-    <qos_library name="GameTheorySmartGrid_Library">
+    <qos_library name="GameTheorySmartGrid2_Library">
 
         <!-- QoS profile used to configure reliable communication between the DataWriter 
              and DataReader created in the example code.
 
              A QoS profile groups a set of related QoS.
         -->
-        <qos_profile name="GameTheorySmartGrid_Profile" base_name="BuiltinQosLibExp::Generic.StrictReliable" is_default_qos="true">
+        <qos_profile name="GameTheorySmartGrid2_Profile" base_name="BuiltinQosLibExp::Generic.StrictReliable" is_default_qos="true">
             <!-- QoS used to configure the data writer created in the example code -->                
             <datawriter_qos>
                 <publication_name>
-                    <name>GameTheorySmartGridDataWriter</name>
+                    <name>GameTheorySmartGrid2DataWriter</name>
                 </publication_name>
             </datawriter_qos>
 
             <!-- QoS used to configure the data reader created in the example code -->                
             <datareader_qos>
                 <subscription_name>
-                    <name>GameTheorySmartGridDataReader</name>
+                    <name>GameTheorySmartGrid2DataReader</name>
                 </subscription_name>
             </datareader_qos>
             <participant_qos>
@@ -104,8 +104,8 @@ RTI Connext user manual.
                 application from another when you're debugging.
                 -->
                 <participant_name>
-                    <name>GameTheorySmartGridParticipant</name>
-                    <role_name>GameTheorySmartGridParticipantRole</role_name>
+                    <name>GameTheorySmartGrid2Participant</name>
+                    <role_name>GameTheorySmartGrid2ParticipantRole</role_name>
                 </participant_name>
 
             </participant_qos>

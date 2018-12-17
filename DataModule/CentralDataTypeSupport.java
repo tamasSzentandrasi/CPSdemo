@@ -152,6 +152,8 @@ public class CentralDataTypeSupport extends TypeSupportImpl {
 
         currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
         currentAlignment +=CdrPrimitiveType.DOUBLE.getArrayMaxSizeSerialized(0,  (7));
+        currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
+        currentAlignment += CdrPrimitiveType.INT.getMaxSizeSerialized(0) ;
         // Sentinel
         currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
         if (include_encapsulation) {
@@ -179,6 +181,8 @@ public class CentralDataTypeSupport extends TypeSupportImpl {
 
         currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
         currentAlignment += CdrPrimitiveType.DOUBLE.getArrayMaxSizeSerialized(0,  (7));
+        currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 12);
+        currentAlignment +=CdrPrimitiveType.INT.getMaxSizeSerialized(0) ;
 
         // Sentinel
         currentAlignment += (CdrPrimitiveType.getPadSize(currentAlignment, 4) + 4);
@@ -217,6 +221,10 @@ public class CentralDataTypeSupport extends TypeSupportImpl {
         epd.setBaseAlignment(currentAlignment);
 
         currentAlignment  +=  CdrPrimitiveType.DOUBLE.getArrayMaxSizeSerialized(epd.getAlignment(currentAlignment),  (7));
+        currentAlignment += (CdrPrimitiveType.getPadSize(epd.getAlignment(currentAlignment), 4) + 12);
+        epd.setBaseAlignment(currentAlignment);
+
+        currentAlignment  +=  CdrPrimitiveType.INT.getMaxSizeSerialized(epd.getAlignment(currentAlignment));
         // Sentinel
         currentAlignment += (CdrPrimitiveType.getPadSize(epd.getAlignment(currentAlignment), 4) + 4);
         epd.setBaseAlignment(currentAlignment);
@@ -310,6 +318,11 @@ public class CentralDataTypeSupport extends TypeSupportImpl {
                 dst.writeDouble(typedSrc.prices[i1__]);
             }
 
+            dst.writeMemberLength(memberLengthPosition, true);
+
+            memberId = 198567639;
+            memberLengthPosition = dst.writeMemberId((int)memberId);
+            dst.writeInt(typedSrc.timestamp);
             dst.writeMemberLength(memberLengthPosition, true);
             if (!(skipListEndId_tmp)) {
                 boolean mustUnderstand=true;
@@ -438,6 +451,9 @@ public class CentralDataTypeSupport extends TypeSupportImpl {
                     }
 
                     break;
+                    case 198567639:
+                    typedDst.timestamp = src.readInt();
+                    break;
                     default:
                     if (memberInfo.flagMustUnderstand) {
                         throw new RETCODE_ERROR(
@@ -553,6 +569,10 @@ public class CentralDataTypeSupport extends TypeSupportImpl {
                         src.skipDouble();
                     }
 
+                    break;
+
+                    case 198567639:
+                    src.skipInt();
                     break;
 
                     default:

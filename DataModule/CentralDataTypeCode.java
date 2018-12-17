@@ -18,9 +18,10 @@ public class  CentralDataTypeCode {
     private static TypeCode getTypeCode() {
         TypeCode tc = null;
         int __i=0;
-        StructMember sm[]=new StructMember[1];
+        StructMember sm[]=new StructMember[2];
 
         sm[__i]=new  StructMember("prices", false, (short)-1,  false,(TypeCode) new TypeCode(new int[] {7}, TypeCode.TC_DOUBLE),254979759 , false);__i++;
+        sm[__i]=new  StructMember("timestamp", false, (short)-1,  false,(TypeCode) TypeCode.TC_LONG,198567639 , false);__i++;
 
         tc = TypeCodeFactory.TheTypeCodeFactory.create_struct_tc("DataModule::CentralData",ExtensibilityKind.MUTABLE_EXTENSIBILITY,  sm);        
         return tc;

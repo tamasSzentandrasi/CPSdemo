@@ -18,8 +18,9 @@ public class  UserConsumptionTypeCode {
     private static TypeCode getTypeCode() {
         TypeCode tc = null;
         int __i=0;
-        StructMember sm[]=new StructMember[2];
+        StructMember sm[]=new StructMember[3];
 
+        sm[__i]=new  StructMember("userid", false, (short)-1,  false,(TypeCode) TypeCode.TC_LONGLONG,206802922 , false);__i++;
         sm[__i]=new  StructMember("consumptions", false, (short)-1,  false,(TypeCode) new TypeCode(new int[] {7}, TypeCode.TC_DOUBLE),171558363 , false);__i++;
         sm[__i]=new  StructMember("productions", false, (short)-1,  false,(TypeCode) new TypeCode(new int[] {7}, TypeCode.TC_DOUBLE),131130604 , false);__i++;
 

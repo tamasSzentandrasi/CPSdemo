@@ -18,6 +18,7 @@ import com.rti.dds.cdr.CdrHelper;
 
 public class UserConsumption   implements Copyable, Serializable{
 
+    public long userid= 0;
     public double [] consumptions=  new double [7];
     public double [] productions=  new double [7];
 
@@ -41,6 +42,7 @@ public class UserConsumption   implements Copyable, Serializable{
 
     public void clear() {
 
+        userid= 0;
         for(int i1__ = 0; i1__< 7; ++i1__){
 
             consumptions[i1__] =  0;
@@ -65,6 +67,9 @@ public class UserConsumption   implements Copyable, Serializable{
 
         UserConsumption otherObj = (UserConsumption)o;
 
+        if(userid != otherObj.userid) {
+            return false;
+        }
         for(int i1__ = 0; i1__< 7; ++i1__){
 
             if(consumptions[i1__] != otherObj.consumptions[i1__]) {
@@ -84,6 +89,7 @@ public class UserConsumption   implements Copyable, Serializable{
 
     public int hashCode() {
         int __result = 0;
+        __result += (int)userid;
         for(int i1__ = 0; i1__< 7; ++i1__){
 
             __result += (int)consumptions[i1__];
@@ -116,6 +122,7 @@ public class UserConsumption   implements Copyable, Serializable{
         UserConsumption typedSrc = (UserConsumption) src;
         UserConsumption typedDst = this;
 
+        typedDst.userid = typedSrc.userid;
         System.arraycopy(typedSrc.consumptions,0,
         typedDst.consumptions,0,
         typedSrc.consumptions.length); 
@@ -139,6 +146,8 @@ public class UserConsumption   implements Copyable, Serializable{
             strBuffer.append(desc).append(":\n");
         }
 
+        CdrHelper.printIndent(strBuffer, indent+1);        
+        strBuffer.append("userid: ").append(userid).append("\n");  
         CdrHelper.printIndent(strBuffer, indent+1);
         strBuffer.append("consumptions: ");
         for(int i1__ = 0; i1__< 7; ++i1__){
