@@ -51,6 +51,7 @@ public class MyController {
     // -----------------------------------------------------------------------
 
     public static void main(String[] args) {
+    	
         // --- Get domain ID --- //
         int domainId = 0;
         if (args.length >= 1) {
@@ -76,35 +77,45 @@ public class MyController {
     // -----------------------------------------------------------------------
     // Private Methods
     // -----------------------------------------------------------------------
-
-    public static List<Double> globalDataAcquire() {
-    	URL url = MyController.class.getResource("../prices.csv");
-    	System.out.println(url.toString().replace("file:/", ""));
-    	File file= new File(url.toString().replace("file:/", ""));
+    private static List<Double> values = null;
+    private static int index = 0;
+    
+    public static CentralData globalDataAcquire() {
+    	if (values == null) {
+	    	URL url = MyController.class.getResource("../prices.csv");
+	    	
+	    	File file= new File(url.toString().replace("file:/", ""));
+	    	
+	        // this gives you a 2-dimensional array of strings
+	        values = new ArrayList<>();
+	        Scanner inputStream;
+	
+	        try{
+	            inputStream = new Scanner(file);
+	            int i = 0;
+	            while(inputStream.hasNextLine() && i++<10){
+	                String line= inputStream.next();
+	                // this adds the currently parsed line to the 2-dimensional string array
+	                values.add(Double.valueOf(line.replace(',', '.')));
+	            }
+	
+	            inputStream.close();
+	        }catch (FileNotFoundException e) {
+	            e.printStackTrace();
+	        }
+    	}
     	
-        // this gives you a 2-dimensional array of strings
-        List<Double> lines = new ArrayList<>();
-        Scanner inputStream;
-
-        try{
-            inputStream = new Scanner(file);
-            int i = 0;
-            while(inputStream.hasNextLine() && i++<10){
-                String line= inputStream.next();
-                System.out.println(line);
-                // this adds the currently parsed line to the 2-dimensional string array
-                lines.add(Double.valueOf(line));
-            }
-
-            inputStream.close();
-        }catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        
-        System.out.println(lines.size());
-        System.out.println(lines.get(0).toString());
+    	double price = values.get(index++);
     	
-    	return null;
+    	double[] array = new double[7];
+    	for (int i = 0; i < 7; i++)
+    		array[i] = price;
+    	
+    	CentralData create = (CentralData) CentralData.create();
+    	create.prices = array;
+    	create.timestamp = (int) System.currentTimeMillis();
+    	
+    	return create;
     }
     public static long registerUser(Long id) {
     	//placeholder, might be useful.
