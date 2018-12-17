@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.rti.dds.domain.DomainParticipant;
 import com.rti.dds.domain.DomainParticipantFactory;
+import com.rti.dds.infrastructure.InstanceHandle_t;
 import com.rti.dds.infrastructure.RETCODE_NO_DATA;
 import com.rti.dds.infrastructure.ResourceLimitsQosPolicy;
 import com.rti.dds.infrastructure.StatusKind;
@@ -22,6 +23,7 @@ import com.rti.dds.subscription.Subscriber;
 import com.rti.dds.subscription.ViewStateKind;
 import com.rti.dds.topic.Topic;
 
+import DataModule.CentralData;
 import DataModule.CentralDataDataWriter;
 import DataModule.CentralDataTypeSupport;
 import DataModule.UserConsumption;
@@ -69,13 +71,23 @@ public class MyController {
     // Private Methods
     // -----------------------------------------------------------------------
 
+    public static CentralData globalDataAcquire() {
+    	return null;
+    }
     public static long registerUser(Long id) {
     	//placeholder, might be useful.
     	return 0;
     }
     
-    public static int updateUsers() {
-    	return 0;
+    public static int updateUsers(CentralDataDataWriter priceTopicWriter) {
+        // For a data type that has a key, if the same instance is going to be
+        // written multiple times, initialize the key here
+        // and register the keyed instance prior to writing 
+        // instance_handle = writer.register_instance(instance);
+        CentralData instance = globalDataAcquire();
+        InstanceHandle_t instance_handle = InstanceHandle_t.HANDLE_NIL;
+        priceTopicWriter.write(instance, instance_handle);
+        return 0;
     }
     
     public static int addClient(Long id, double[] con_value, double[] prod_value) {

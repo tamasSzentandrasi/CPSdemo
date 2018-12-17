@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.rti.dds.domain.DomainParticipant;
 import com.rti.dds.domain.DomainParticipantFactory;
+import com.rti.dds.infrastructure.InstanceHandle_t;
 import com.rti.dds.infrastructure.RETCODE_NO_DATA;
 import com.rti.dds.infrastructure.ResourceLimitsQosPolicy;
 import com.rti.dds.infrastructure.StatusKind;
@@ -22,6 +23,7 @@ import com.rti.dds.subscription.Subscriber;
 import com.rti.dds.subscription.ViewStateKind;
 import com.rti.dds.topic.Topic;
 
+import DataModule.CentralData;
 import DataModule.CentralDataDataWriter;
 import DataModule.CentralDataTypeSupport;
 import DataModule.UserConsumption;
@@ -65,10 +67,6 @@ public class MyController {
         publisherMain(domainId, sampleCount);
     }
 
-    // -----------------------------------------------------------------------
-    // Private Methods
-    // -----------------------------------------------------------------------
-
     public static long registerUser(Long id) {
     	//placeholder, might be useful.
     	return 0;
@@ -92,6 +90,10 @@ public class MyController {
     
     public static void monopolInflation() {
     }
+    
+    // -----------------------------------------------------------------------
+    // Private Methods
+    // -----------------------------------------------------------------------
     
     private double systemInflation = 1.0;
     private static Map<Long, HashMap<Long, Double[]>> providers = new HashMap<Long, HashMap<Long, Double[]>>();
@@ -269,12 +271,11 @@ public class MyController {
 
             // --- Write --- //
 
-            
             /*
-             *  TODO ???
+            //  TODO ???
              
             // Create data sample for writing 
-            UvegHaz instance = new UvegHaz();
+            CentralData instance = new CentralData();
 
             InstanceHandle_t instance_handle = InstanceHandle_t.HANDLE_NIL;
             // For a data type that has a key, if the same instance is going to be
@@ -297,7 +298,7 @@ public class MyController {
                 instance.Value = r.nextDouble()*100;
                 
                 // Write data 
-                writer.write(instance, instance_handle);
+                priceTopicWriter.write(instance, instance_handle);
                 try {
                     Thread.sleep(sendPeriodMillis);
                 } catch (InterruptedException ix) {
