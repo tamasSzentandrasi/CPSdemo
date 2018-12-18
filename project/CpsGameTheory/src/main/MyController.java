@@ -771,6 +771,33 @@ private static class ConsumptionListener extends DataReaderAdapter {
 	
     UserConsumptionSeq _dataSeq = new UserConsumptionSeq();
     SampleInfoSeq _infoSeq = new SampleInfoSeq();
+    
+    private static double help_providers_sumup(double[] one) {
+    	double res = 0.0;
+    	for (int i=0; i<7; i++) {
+    		res += one[i];
+    	}
+    	return res;
+    }
+    private static double[] help_providers_add(double[] toAdd, double[] total) {
+    	double[] res = new double[7];
+    	for (int i=0; i<7; i++) {
+    		res[i] = total[i] + toAdd[i];
+    	}
+    	return res;
+    }
+    
+    private static Double[] help_double_cast(double[] toCast) {
+    	Double[] res = new Double[7]; 
+    	for (int i=0;i<7;i++) {
+    		res[i] = toCast[i];
+    	}
+    	return res;
+    }
+    
+    private static Long help_long_cast(long val) {
+    	return new Long(val);
+    }
 	 
     public void on_data_available(DataReader reader) {
 
@@ -791,6 +818,14 @@ private static class ConsumptionListener extends DataReaderAdapter {
                     //System.out.println(
                     //    ((UserConsumption)_dataSeq.get(i)).toString("Received",0));
                     UserConsumption newConsumption = (UserConsumption)_dataSeq.get(i);
+                    if (help_providers_sumup(help_providers_add(newConsumption.consumptions, consumptions.get(newConsumption.userid).consumptions)) > 0.0) {
+                    	getOfferBuy(newConsumption.userid, help_providers_sumup(help_providers_add(newConsumption.consumptions, consumptions.get(newConsumption.userid).consumptions)));                	
+                    }
+                    if (help_providers_sumup(help_providers_add(newConsumption.productions, consumptions.get(newConsumption.userid).productions)) < 0.001 ) {
+                    	providers.get(newConsumption.userid).clear();
+                    } else if (help_providers_sumup(help_providers_add(newConsumption.productions, consumptions.get(newConsumption.userid).productions)) > 0.001 ) {
+                    	getOfferSell(help_long_cast(newConsumption.userid), help_double_cast(help_providers_add(newConsumption.consumptions, consumptions.get(newConsumption.userid).consumptions)));                	
+                    }
                     consumptions.put(newConsumption.userid, newConsumption);
                     HashMap<Long, Double[]> startingOut = new HashMap<Long, Double[]>();
                     providers.put(newConsumption.userid, startingOut);
