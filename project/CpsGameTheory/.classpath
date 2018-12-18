@@ -16,6 +16,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/Dokumentumok/BME/MSc_2_felev/kibfiz/HF/git/nddsjava.jar"/>
+	<classpathentry exported="true" kind="lib" path="E:/redirectDownload/CPS3/nddsjava.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -23,6 +23,7 @@ import DataModule.CentralData;
 import DataModule.CentralDataDataReader;
 import DataModule.CentralDataSeq;
 import DataModule.CentralDataTypeSupport;
+import DataModule.EnergyType;
 import DataModule.UserConsumption;
 import DataModule.UserConsumptionDataReader;
 import DataModule.UserConsumptionDataWriter;
@@ -60,6 +61,19 @@ public class MyUser {
 
         // --- Run --- //
         subscriberMain(domainId, sampleCount);
+    }
+    
+    public double getEnergyCost(EnergyType type) {
+    	switch(type.value()) {
+    		case 0: return 0.063;	//SOLAR
+    		case 1: return 0.059;	//WIND
+    		case 2: return 0.062;	//HYDRO
+    		case 3: return 0.095;	//BIOMASS
+    		case 4: return 0.093;	//NUCLEAR
+    		case 5: return 0.12;	//COAL
+    		case 6: return 0.05;	//GAS
+    	}
+		return 0.0;
     }
 
     // -----------------------------------------------------------------------
