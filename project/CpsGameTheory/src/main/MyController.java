@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 import com.rti.dds.domain.DomainParticipant;
@@ -125,15 +126,16 @@ public class MyController {
     	return 0;
     }
     
-    public static int updateUsers(CentralDataDataWriter priceTopicWriter) {
+    public static void updateUsers(CentralDataDataWriter priceTopicWriter) {
         // For a data type that has a key, if the same instance is going to be
         // written multiple times, initialize the key here
         // and register the keyed instance prior to writing 
         // instance_handle = writer.register_instance(instance);
         CentralData instance = globalDataAcquire();
         InstanceHandle_t instance_handle = InstanceHandle_t.HANDLE_NIL;
+        instance_handle = priceTopicWriter.register_instance(instance);
         priceTopicWriter.write(instance, instance_handle);
-        return 0;
+        priceTopicWriter.unregister_instance(instance, instance_handle);
     }
     
     public static int addClient(Long id, double[] con_value, double[] prod_value) {
@@ -655,47 +657,23 @@ public class MyController {
 
             // --- Write --- //
 
-            
-            /*
-             *  TODO ???
-             
-            // Create data sample for writing 
-            UvegHaz instance = new UvegHaz();
-
-            InstanceHandle_t instance_handle = InstanceHandle_t.HANDLE_NIL;
-            // For a data type that has a key, if the same instance is going to be
-            // written multiple times, initialize the key here
-            // and register the keyed instance prior to writing 
-            // instance_handle = writer.register_instance(instance);
-
-            final long sendPeriodMillis = 4 * 1000; // 4 seconds
-
-            Random r = new Random();
-            instance.ID = "temp0";
-            
-            for (int count = 0;
-            (sampleCount == 0) || (count < sampleCount);
-            ++count) {
-                System.out.println("Writing Temperature, count " + count);
-
-                // Modify the instance to be written here 
-
-                instance.Value = r.nextDouble()*100;
-                
-                // Write data 
-                writer.write(instance, instance_handle);
-                try {
-                    Thread.sleep(sendPeriodMillis);
-                } catch (InterruptedException ix) {
-                    System.err.println("INTERRUPTED");
-                    break;
-                }
+            final long sendPeriodMillis = 60 * 1000; // minutes
+            long lastSentPrice = 0;
+            while (true) {
+            	if (Math.abs(lastSentPrice - System.currentTimeMillis()) > sendPeriodMillis) {
+            		updateUsers(priceTopicWriter);
+            	}
+            	
+            	sendProposals(offerTopicWriter);
+            	
+            	try {
+					Thread.sleep(100); // Not real time decision, wait for some other consumptions
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				} 
             }
-
-            */
             
-            //writer.unregister_instance(instance, instance_handle);
-
+           
         } finally {
 
             // --- Shutdown --- //
@@ -713,6 +691,18 @@ public class MyController {
             singleton. */
             //DomainParticipantFactory.finalize_instance();
         }
+    }
+    
+    public static void sendProposals(UserConsumptionDataWriter offerTopicWriter) {
+    	for (long user : users.keySet()) {
+    		if (consumptions.containsKey(user)) {
+    			UserConsumption instance = consumptions.get(user);
+    			InstanceHandle_t instance_handle = InstanceHandle_t.HANDLE_NIL;
+    			instance_handle = offerTopicWriter.register_instance(instance);
+    			offerTopicWriter.write(instance, instance_handle);
+    			offerTopicWriter.unregister_instance(instance, instance_handle);
+    		}
+    	}
     }
     
 private static class UserListener extends DataReaderAdapter {
