@@ -685,7 +685,7 @@ public class MyController {
 
             final long sendPeriodMillis = 60 * 1000; // minutes
             long lastSentPrice = 0;
-            while (true) {
+            for (int count = 0; (sampleCount == 0) || (count < sampleCount); ++count) {
             	if (Math.abs(lastSentPrice - System.currentTimeMillis()) > sendPeriodMillis) {
             		updateUsers(priceTopicWriter);
             	}

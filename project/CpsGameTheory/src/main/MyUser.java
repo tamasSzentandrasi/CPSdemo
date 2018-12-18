@@ -2,12 +2,14 @@
 
 package main;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import com.rti.dds.domain.DomainParticipant;
 import com.rti.dds.domain.DomainParticipantFactory;
+import com.rti.dds.infrastructure.InstanceHandle_t;
 import com.rti.dds.infrastructure.RETCODE_NO_DATA;
 import com.rti.dds.infrastructure.ResourceLimitsQosPolicy;
 import com.rti.dds.infrastructure.StatusKind;
@@ -33,6 +35,8 @@ import DataModule.UserConsumptionDataReader;
 import DataModule.UserConsumptionDataWriter;
 import DataModule.UserConsumptionSeq;
 import DataModule.UserConsumptionTypeSupport;
+import UserModule.RoleType;
+import UserModule.UserStruct;
 import UserModule.UserStructDataWriter;
 import UserModule.UserStructTypeSupport;
 import handlers.DatabaseHandler;
@@ -121,13 +125,34 @@ public class MyUser {
     }
     
     private static void revokeResources() {
-		// TODO Auto-generated method stub
-		
+    	// TODO need the writer
+    	UserConsumption instance2 = (UserConsumption) UserConsumption.create();
+    	instance2.productions = new double[7];
+    	for (int i = 0; i < 7; i++) {
+    		instance2.productions[i] = 0;
+    	}
+    	
+		InstanceHandle_t instance_handle2 = InstanceHandle_t.HANDLE_NIL;
+		//instance_handle2 = consumptionTopicWriter.register_instance(instance2);
+		//consumptionTopicWriter.write(instance2, instance_handle2);
+		//consumptionTopicWriter.unregister_instance(instance2, instance_handle2);
+
 	}
 
 	private static HashMap<Long, Double[]> makeOffer(Long selectResource) {
-		// TODO Auto-generated method stub
-		return null;
+
+    	UserConsumption instance2 = (UserConsumption) UserConsumption.create();
+    	instance2.productions = new double[7];
+    	for (int i = 0; i < 7; i++) {
+    		instance2.productions[i] = 0;
+    	}
+    	
+		InstanceHandle_t instance_handle2 = InstanceHandle_t.HANDLE_NIL;
+		//instance_handle2 = consumptionTopicWriter.register_instance(instance2);
+		//consumptionTopicWriter.write(instance2, instance_handle2);
+		//consumptionTopicWriter.unregister_instance(instance2, instance_handle2);
+
+		return null; // TODO what to return
 	}
 
 	// -----------------------------------------------------------------------
@@ -223,7 +248,6 @@ public class MyUser {
 
     // -----------------------------------------------------------------------
 
-    protected static DatabaseHandler dbHandler = new DatabaseHandler();
     
     private static void subscriberMain(int domainId, int sampleCount) {
 
@@ -234,9 +258,9 @@ public class MyUser {
         Topic consumptionTopic = null;
         Topic priceTopic = null;
         Topic offerTopic = null;
-        DataReaderListener listener = null;
         DataReaderListener offerListener = null;
         DataReaderListener priceListener = null;
+        DatabaseHandler dbHandler = new DatabaseHandler();
         CentralDataDataReader priceTopicReader = null;
         UserConsumptionDataWriter consumptionTopicWriter = null;
         UserStructDataWriter userRegisterTopicWriter = null;
@@ -359,9 +383,8 @@ public class MyUser {
             
             // --- Create reader --- //
 
-           // listener = new Listener(dbHandler); TODO for visualization +  database
             offerListener = new OfferListener();
-            priceListener = new PriceListener();
+            priceListener = new PriceListener(dbHandler);
             
 
             /* To customize data reader QoS, use
@@ -383,20 +406,40 @@ public class MyUser {
             if (offerTopicReader == null) {
                 System.err.println("create_datareader error\n");
                 return;
-            }                         
+            }      
+            
+            UserStruct instance = (UserStruct) UserStruct.create();
+            
+            instance.id = 0; // TODO initialize values
+            instance.distance = 1;
+            RoleType[] type = new RoleType[1];
+            type[0] = RoleType.CONSUMER;
+            instance.role = type;
+            instance.switchRef = 0;
+            
+			InstanceHandle_t instance_handle = InstanceHandle_t.HANDLE_NIL;
+			instance_handle = userRegisterTopicWriter.register_instance(instance);
+			userRegisterTopicWriter.write(instance, instance_handle);
+			userRegisterTopicWriter.unregister_instance(instance, instance_handle);
 
             // --- Wait for data --- //
 
-            final long receivePeriodSec = 4;
+            final long receivePeriodMillisec = 1000;
 
-            for (int count = 0;
-            (sampleCount == 0) || (count < sampleCount);
-            ++count) {
-                System.out.println("Temperature subscriber sleeping for "
-                + receivePeriodSec + " sec...");
+            for (int count = 0; (sampleCount == 0) || (count < sampleCount); ++count) {
+                
+            	// TODO makeDecision(???); ?
+            	
+            	UserConsumption instance2 = (UserConsumption) UserConsumption.create();
+            	instance2.consumptions = new double[7];
+            	instance2.consumptions[0] = currentConsumption;
+    			InstanceHandle_t instance_handle2 = InstanceHandle_t.HANDLE_NIL;
+    			instance_handle2 = consumptionTopicWriter.register_instance(instance2);
+    			consumptionTopicWriter.write(instance2, instance_handle2);
+    			consumptionTopicWriter.unregister_instance(instance2, instance_handle2);
 
                 try {
-                    Thread.sleep(receivePeriodSec * 1000);  // in millisec
+                    Thread.sleep(receivePeriodMillisec);  // in millisec
                 } catch (InterruptedException ix) {
                     System.err.println("INTERRUPTED");
                     break;
@@ -465,8 +508,13 @@ public class MyUser {
 
         CentralDataSeq _dataSeq = new CentralDataSeq();
         SampleInfoSeq _infoSeq = new SampleInfoSeq();
-
+        DatabaseHandler dbHandler = null;
+        
         public static double lastMeanPrice = 0;
+        
+        public PriceListener(DatabaseHandler dbHandler) {
+        	this.dbHandler = dbHandler;
+        }
         
         public double meanPrice(double[] prices) {
         	double sum = 0;
@@ -509,47 +557,5 @@ public class MyUser {
         }
     }
 
-    private static class Listener extends DataReaderAdapter {
-    	/*
-    	UvegHazSeq _dataSeq = new UvegHazSeq();
-        SampleInfoSeq _infoSeq = new SampleInfoSeq();
-        DatabaseHandler dbHandler = null;
-        */
-        public Listener(/*DatabaseHandler dbHandler*/) {
-        	//this.dbHandler = dbHandler;
-        }
-
-        public void on_data_available(DataReader reader) {
-        	/*
-        	UvegHazDataReader dataReader =
-            (UvegHazDataReader)reader;
-
-            try {
-                dataReader.take(
-                    _dataSeq, _infoSeq,
-                    ResourceLimitsQosPolicy.LENGTH_UNLIMITED,
-                    SampleStateKind.ANY_SAMPLE_STATE,
-                    ViewStateKind.ANY_VIEW_STATE,
-                    InstanceStateKind.ANY_INSTANCE_STATE);
-
-                for(int i = 0; i < _dataSeq.size(); ++i) {
-                    SampleInfo info = (SampleInfo)_infoSeq.get(i);
-
-                    if (info.valid_data) {
-                        System.out.println(((UvegHaz)_dataSeq.get(i)).toString("Received",0));
-                        
-                        if(((UvegHaz)_dataSeq.get(i)).ID.equals("temp0"))
-                        	dbHandler.addData(((UvegHaz)_dataSeq.get(i)).ID, ((UvegHaz)_dataSeq.get(i)).Value);
-
-                    }
-                }
-            } catch (RETCODE_NO_DATA noData) {
-                // No data to process
-            } finally {
-                dataReader.return_loan(_dataSeq, _infoSeq);
-            }
-            */
-        }
-    }
 }
 
