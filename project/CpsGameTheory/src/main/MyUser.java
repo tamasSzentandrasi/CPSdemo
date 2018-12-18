@@ -428,7 +428,7 @@ public class MyUser {
 
             for (int count = 0; (sampleCount == 0) || (count < sampleCount); ++count) {
                 
-            	// TODO makeDecision(???); ?
+            	currentConsumption = Math.random() * 8;
             	
             	UserConsumption instance2 = (UserConsumption) UserConsumption.create();
             	instance2.consumptions = new double[7];
