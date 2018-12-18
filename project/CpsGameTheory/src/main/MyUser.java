@@ -2,6 +2,10 @@
 
 package main;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import com.rti.dds.domain.DomainParticipant;
 import com.rti.dds.domain.DomainParticipantFactory;
 import com.rti.dds.infrastructure.RETCODE_NO_DATA;
@@ -32,6 +36,7 @@ import DataModule.UserConsumptionTypeSupport;
 import UserModule.UserStructDataWriter;
 import UserModule.UserStructTypeSupport;
 import handlers.DatabaseHandler;
+import javafx.util.Pair;
 
 // ===========================================================================
 
@@ -63,7 +68,7 @@ public class MyUser {
         subscriberMain(domainId, sampleCount);
     }
     
-    public double getEnergyCost(EnergyType type) {
+    public static double getEnergyCost(EnergyType type) {
     	switch(type.value()) {
     		case 0: return 0.063;	//SOLAR
     		case 1: return 0.059;	//WIND
@@ -76,10 +81,140 @@ public class MyUser {
 		return 0.0;
     }
 
-    // -----------------------------------------------------------------------
+    public static double calculateNash(HashMap<Long, Double> prices) {
+    	double res = 0.0;
+    	double maxval = 0.0;
+    	Long worst_trading_partner = (long) 0;
+    	for (Long partner: currentPartners.keySet()) {
+    		if (prices.get(partner) > maxval) {
+    			maxval = prices.get(partner);
+    			worst_trading_partner = partner;
+    		}
+    		res -= help_providers_scalar(help_double_lowercast(currentPartners.get(partner)), prices.get(partner));
+    	}
+    	weightValues.replace(worst_trading_partner, weightValues.get(worst_trading_partner)*0.9);
+    	for (Long client: currentBuyers.keySet()) {
+    		if (myPriceScale*currentPrice > maxval) {
+    			myPriceScale *= 0.9;
+    		}
+    		res += help_providers_scalar(help_double_lowercast(currentBuyers.get(client)), myPriceScale*currentPrice);
+    	}
+    	return res;
+    }
+    
+    public static void makeDecision(double Nash) {
+    	if (Nash < 0.0 || warning) {
+    		if (resources.isEmpty()) {
+    			myPriceScale *= 1.1;
+    			return;
+    		} else {
+    			HashMap<Long, Double[]> newbuyers = makeOffer(selectResource(Nash));
+    			for (Long buyer: newbuyers.keySet()) {
+    				decisionHistory.put(buyer, help_providers_sumup(help_double_lowercast(newbuyers.get(buyer))));
+    			}
+    		}
+    	} else {
+    		if (myPriceScale < 0.5) {
+    			revokeResources();
+    		}
+    	}
+    }
+    
+    private static void revokeResources() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private static HashMap<Long, Double[]> makeOffer(Long selectResource) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	// -----------------------------------------------------------------------
     // Private Methods
     // -----------------------------------------------------------------------
 
+    private static Long selectResource(double Nash) {
+    	double closest = 999.999;
+    	Long chosenKey = (long) 0;
+    	for (Long key: resources.keySet()) {
+    		if (((currentPrice * myPriceScale * (1.0 + getEnergyCost(resources.get(key).getKey()))) - Nash) < closest) {
+    			closest = currentPrice * myPriceScale * (1.0 + getEnergyCost(resources.get(key).getKey()));
+    			chosenKey = key;
+    		}
+    	}
+    	return chosenKey;
+    }
+    
+    private static Double[] help_double_cast(double[] toCast) {
+    	Double[] res = new Double[7]; 
+    	for (int i=0;i<7;i++) {
+    		res[i] = toCast[i];
+    	}
+    	return res;
+    }
+    
+    private static double[] help_double_lowercast(Double[] toCast) {
+    	double[] res = new double[7];
+    	for (int i=0; i<7; i++) {
+    		res[i] = toCast[i];
+    	}
+    	return res;
+    }
+    
+    private static boolean help_array_check(double[] toBeChecked, double threshold){
+    	boolean allZero = true;
+        for (double value: toBeChecked) {
+        	if (value <= -threshold && value >= threshold) {
+        		allZero = false;
+        	}
+        }
+        return allZero;
+    }
+    
+    private static double[] help_providers_diff(double[] inUse, double[] total) {
+    	double[] res = new double[7];
+    	for (int i=0; i<7; i++) {
+    		res[i] = total[i] - inUse[i];
+    	}
+    	return res;
+    }
+    
+    private static double[] help_providers_add(double[] toAdd, double[] total) {
+    	double[] res = new double[7];
+    	for (int i=0; i<7; i++) {
+    		res[i] = total[i] + toAdd[i];
+    	}
+    	return res;
+    }
+    
+    private static double help_providers_scalar(double[] one, double two) {
+    	double res = 0.0;
+    	for (int i=0; i<7; i++) {
+    		res += one[i] * two;
+    	}
+    	return res;
+    }
+    
+    private static double help_providers_sumup(double[] one) {
+    	double res = 0.0;
+    	for (int i=0; i<7; i++) {
+    		res += one[i];
+    	}
+    	return res;
+    }
+    
+    private static boolean warning = false;
+    private static double myPriceScale = 1.0;
+    private static double currentPrice = 1.0;
+    private static double currentNash = 0.0;
+    private static double currentConsumption = 0.0;
+    private static double currentProduction = 0.0;
+    private static HashMap<Long, Pair<EnergyType, Double>> resources = new HashMap<Long, Pair<EnergyType, Double>>();
+    private static HashMap<Long, Double> weightValues = new HashMap<Long, Double>(); 
+    private static HashMap<Long, Double> decisionHistory = new HashMap<Long, Double>();
+    private static HashMap<Long, Double[]> currentPartners = new HashMap<Long, Double[]>();
+    private static HashMap<Long, Double[]> currentBuyers = new HashMap<Long, Double[]>();
     // --- Constructors: -----------------------------------------------------
 
     private MyUser() {

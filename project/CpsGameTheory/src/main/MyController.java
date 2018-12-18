@@ -187,19 +187,35 @@ public class MyController {
     	for (Long agreed: res.keySet()) {
     		providers.get(agreed).replace(id_who, providers.get(agreed).get(id_who), help_double_cast(help_providers_add(help_double_lowercast(res.get(agreed)), help_double_lowercast(providers.get(agreed).get(id_who))))); 
     	}
+    	for (Long agreed: res.keySet()) {
+    		consumptions.get(id_who).productions = help_providers_add(consumptions.get(id_who).consumptions, help_double_lowercast(res.get(agreed)));
+    	}
     	return res;
     }
     
     public static HashMap<Long, Double[]> getOfferSell(Long id_who, Double[] value) {
     	currentClient = id_who;
-		return help_ideal_sale(value);
+		HashMap<Long, Double[]> ideal_sale = help_ideal_sale(value);
+		consumptions.get(id_who).productions = help_providers_add(help_double_lowercast(value), consumptions.get(id_who).productions);
+		sellers++;
+		for (Long agreed: ideal_sale.keySet()) {
+    		providers.get(id_who).replace(agreed, providers.get(id_who).get(agreed), help_double_cast(help_providers_add(help_double_lowercast(ideal_sale.get(agreed)), help_double_lowercast(providers.get(id_who).get(agreed))))); 
+    	}
+		return ideal_sale;
     }
     
     public static int sendWarnings() {
+    	if ((systemInflation > 1.1) || help_critical_consumer_need()) {
+    		return -1;
+    	}
     	return 0;
     }
     
     public static void monopolInflation() {
+    	if (sellers < 3) {
+    		systemInflation *= 1.1;
+    		sendWarnings();
+    	}
     }
     
     public static double getEnergyCost(EnergyType type) {
@@ -213,6 +229,16 @@ public class MyController {
     		case 6: return 0.05;	//GAS
     	}
 		return 0.0;
+    }
+    
+    private static boolean help_critical_consumer_need() {
+    	for (Long id: unfulfilled.keySet()) {
+    		for (RoleType that: users.get(id).role) {
+    			if (that == RoleType.CRITICAL_CONSUMER)
+    				return true;
+    		}
+    	}
+    	return false;
     }
     
     private static HashMap<Long, Double[]> help_ideal_sale(Double[] value) {
@@ -478,9 +504,9 @@ public class MyController {
     	}
     }
     
-    private int sellers = 0;
+    private static int sellers = 0;
     private static Long currentClient;
-    private double systemInflation = 1.0;
+    private static double systemInflation = 1.0;
     private static Map<Long, Double> unfulfilled = new HashMap<Long, Double>();
     private static Map<Long, HashMap<Long, Double[]>> providers = new HashMap<Long, HashMap<Long, Double[]>>();
     private static Map<Long, UserStruct> users = new HashMap<Long, UserStruct>();
